@@ -1,0 +1,78 @@
+function doPost(e) {
+  var props = PropertiesService.getScriptProperties();
+  var cache = CacheService.getUserCache();
+  var url = 'https://api.line.me/v2/bot/message/reply';
+  var CHANNEL_ACCESS_TOKEN = props.getProperty('CHANNEL_ACCESS_TOKEN');
+  var msg = JSON.parse(e.postData.contents);
+  console.log(msg);
+  var replyToken = msg.events[0].replyToken; 
+  var getProfile = msg.events[0].source.userId;
+  var type = msg.events[0].type;
+      props.setProperty('replytoken', replyToken);
+      props.setProperty('getPorfile', getProfile);
+  if(type === "message"){
+     var userMessage = msg.events[0].message.text;
+  }
+  if(type === "follow"){
+  followevent(replyToken);
+ }
+  if(type === 'postback'){
+   var postback = msg.events[0].postback.data;
+    if(postback ==='Authorize'){
+      loginconfirm(replyToken); 
+    } 
+    if(postback ==='cancel'){
+      cancel(replyToken);
+      cache.put('ce', 0);
+      return;
+    }
+    if(postback ==='Confirm'){
+       conditionalFetch();
+      AddSuccess(replyToken);
+      return;
+    }
+    if(postback ==='date'){
+      if(props.getProperty('startTime') === 'undefined'){
+      var dateparams = msg.events[0].postback.params.datetime;
+       props.setProperty('startTime', dateparams);
+      addEndtime(replyToken);
+      return;
+      }
+    }
+     if(postback ==='date'){
+      if(props.getProperty('endtime') === 'undefined'){
+      var dateparams = msg.events[0].postback.params.datetime;
+      props.setProperty('endtime', dateparams);
+      console.log(dateparams);
+      confirme(replyToken);
+      return;
+      }
+     }
+    }
+   if(userMessage === '認證'){
+      loginconfirm(replyToken); 
+   }
+  if(userMessage ==='建立'){
+  　　createvent(replyToken);
+     cache.put('ce','ADDTITLE');
+     return ;
+   }
+  var ce = cache.get('ce');
+  if(ce === 'ADDTITLE'){
+    props.setProperty('title',userMessage);
+    addlocation(replyToken);
+    cache.put('ce', 'ADDDESCRIPTION');
+    return;
+  }
+  if(ce ==='ADDDESCRIPTION'){
+    props.setProperty('loaction', msg.events[0].message.address);
+    AddDecscription(replyToken);
+    cache.put('ce', 'AddTime');
+    return; 
+  }
+  if(ce ==='AddTime'){
+    props.setProperty('description', userMessage);
+    addtime(replyToken);
+    return;
+    }
+}
