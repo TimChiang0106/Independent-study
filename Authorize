@@ -1,0 +1,37 @@
+function  doGet(e) {
+  console.log(e);
+  var propertyStore = PropertiesService.getScriptProperties();
+  var props = propertyStore.getProperties();
+  var url = 'https://oauth2.googleapis.com/token';
+   var postPayload = {
+  
+      "code" : e.parameter.code ,
+      "client_id" : props.client_id,
+      "client_secret" : props.client_secret,
+      "redirect_uri" : getGoogleCallbackURL(true),
+      "grant_type" : "authorization_code",
+    };
+  var options = {
+      "method" : "post",
+      "payload" : postPayload,
+    };
+       var aa = UrlFetchApp.getRequest(url, options);
+       Logger.log(aa);
+       var credentials = UrlFetchApp.fetch(url, options);
+       var params = JSON.parse(credentials.getContentText());
+       console.log(params);
+       var cache = CacheService.getUserCache();
+       propertyStore.setProperty('refresh_token', params.refresh_token);
+       cache.put('access_token', params.access_token);
+       cache.put('expires_in', params.expires_in);
+       addtosheet();
+       return HtmlService.createHtmlOutputFromFile('Close');
+}
+function getGoogleCallbackURL(silent) {
+  var url = ScriptApp.getService().getUrl();
+  var callbackUrl = (url.indexOf('/exec') >= 0 ? url.slice(0, -4) : url.slice(0, -3)) + 'usercallback';
+  if (!silent) Logger.log(callbackUrl);
+  return callbackUrl;
+}
+   
+
