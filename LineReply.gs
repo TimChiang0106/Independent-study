@@ -8,17 +8,19 @@ function doPost(e) {
   var replyToken = msg.events[0].replyToken; 
   var getProfile = msg.events[0].source.userId;
   var type = msg.events[0].type;
-      props.setProperty('replytoken', replyToken);
-      props.setProperty('getPorfile', getProfile);
+  var  profile = props.setProperty('getPorfile', getProfile);
+                 props.setProperty('replytoken', replyToken);
   if(type === "message"){
      var userMessage = msg.events[0].message.text;
   }
   if(type === "follow"){
+    count();
   followevent(replyToken);
  }
   if(type === 'postback'){
    var postback = msg.events[0].postback.data;
     if(postback ==='Authorize'){
+     
       loginconfirm(replyToken); 
     } 
     if(postback ==='cancel'){
@@ -49,9 +51,40 @@ function doPost(e) {
       }
      }
     }
+  if(userMessage==='下一頁'){
+    var menuid = '6062d42a6ce37d02c655f6608e299728'
+    cancelMenu();
+    setdefultmenu(menuid);  
+  
+  }
+  if(userMessage==='前往查詢目錄'){
+    var menuid = 'f88ec8eed0a33a26250f5f7c180196da'
+    cancelMenu();
+    setdefultmenu(menuid);
+  }
    if(userMessage === '認證'){
       loginconfirm(replyToken); 
    }
+  if(userMessage ==='今日行程'){
+    GetTodayList(replyToken)
+   
+    return;
+  }
+  if(userMessage === '明日行程' ){
+     GetTomorrowList(replyToken);
+    return;
+  }
+  if(userMessage === '查詢'){
+    queryevent(replyToken);
+    cache.put('qevent', 'QueryEvent');
+    return;
+  }
+  var qevent = cache.get('qevent');
+  if(qevent ==='QueryEvent'){
+    QeventList(replyToken,userMessage)
+    cache.put('qevent', 'null');
+    return;
+  }
   if(userMessage ==='建立'){
   　　createvent(replyToken);
      cache.put('ce','ADDTITLE');
