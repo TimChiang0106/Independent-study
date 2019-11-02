@@ -2,6 +2,7 @@ function  doGet(e) {
   console.log(e);
   var propertyStore = PropertiesService.getScriptProperties();
   var props = propertyStore.getProperties();
+  var cache = CacheService.getUserCache();
   var url = 'https://oauth2.googleapis.com/token';
    var postPayload = {
   
@@ -15,17 +16,13 @@ function  doGet(e) {
       "method" : "post",
       "payload" : postPayload,
     };
-       var aa = UrlFetchApp.getRequest(url, options);
-       Logger.log(aa);
        var credentials = UrlFetchApp.fetch(url, options);
        var params = JSON.parse(credentials.getContentText());
        console.log(params);
-       var cache = CacheService.getUserCache();
-       propertyStore.setProperty('refresh_token', params.refresh_token);
-       cache.put('access_token', params.access_token);
-       cache.put('expires_in', params.expires_in);
-       addtosheet();
-       return HtmlService.createHtmlOutputFromFile('Close');
+       var refresh = params.refresh_token;
+       var access = params.access_token;
+       addtosheet(refresh,access);
+       return HtmlService.createHtmlOutput('Success! You can close this tab.');
 }
 function getGoogleCallbackURL(silent) {
   var url = ScriptApp.getService().getUrl();
