@@ -4,12 +4,15 @@ function doPost(e) {
   
   var url = 'https://api.line.me/v2/bot/message/reply';
   var CHANNEL_ACCESS_TOKEN = props.getProperty('CHANNEL_ACCESS_TOKEN');
+// 
   
   var msg = JSON.parse(e.postData.contents);
   //主要是把接受的訊息轉換成比較好讀的方式
   console.log(msg);
+  //印出收到的訊息
   
   var replyToken = msg.events[0].replyToken; 
+ // 回傳   
   var getProfile = msg.events[0].source.userId;
   var type = msg.events[0].type;
   var  profile = props.setProperty('getPorfile', getProfile);
@@ -17,6 +20,9 @@ function doPost(e) {
   if(type === "message"){
      var userMessage = msg.events[0].message.text;
   }
+//   if(數字===1){
+//         做這裡的程式碼
+//      }
   if(type === "follow"){
     count();
   followevent(replyToken);
